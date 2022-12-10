@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-import mysql.connector
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -89,14 +88,6 @@ DATABASES = {
         }
     }
 }
-mydb=mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    password='10Gejhupov!',
-    database="sample"
-)
-mycursor = mydb.cursor()
-mycursor.execute("alter table malls")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
