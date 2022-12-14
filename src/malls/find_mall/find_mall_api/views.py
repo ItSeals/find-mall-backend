@@ -24,8 +24,7 @@ class MallListApiView(APIView):
         '''
         data = {
             'title': request.data.get('title'),
-            'description': request.data.get('description'),
-            'status': request.data.get('status')
+            'location': request.data.get('location')
         }
         serializer = MallSerializer(data=data)
         if serializer.is_valid():
@@ -77,8 +76,7 @@ class MallDetailApiView(APIView):
             )
         data = {
             'title': request.data.get('title'),
-            'description': request.data.get('description'),
-            'status': request.data.get('status'),
+            'location': request.data.get('location')
         }
         serializer = MallSerializer(
             instance=mall_instance, data=data, partial=True)
@@ -123,9 +121,7 @@ class CategoriesListApiView(APIView):
         Create the category with given category data
         '''
         data = {
-            'title': request.data.get('title'),
-            'description': request.data.get('description'),
-            'status': request.data.get('status')
+            'title': request.data.get('title')
         }
         serializer = CategoriesSerializer(data=data)
         if serializer.is_valid():
@@ -176,9 +172,7 @@ class CategoriesDetailApiView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         data = {
-            'title': request.data.get('title'),
-            'description': request.data.get('description'),
-            'status': request.data.get('status')
+            'title': request.data.get('title')
         }
         serializer = CategoriesSerializer(
             instance=category_instance, data=data, partial=True)
@@ -230,8 +224,6 @@ class ItemsListApiView(APIView):
             )
         data = {
             'title': request.data.get('title'),
-            'description': request.data.get('description'),
-            'status': request.data.get('status'), 
             'category': request.data.get('category')       
         }
         serializer = ItemSerializer(data=data)
@@ -289,8 +281,6 @@ class ItemsDetailApiView(APIView):
             )
         data = {
             'title': request.data.get('title'),
-            'description': request.data.get('description'),
-            'status': request.data.get('status'),
             'category': request.data.get('category')
         }
         serializer = ItemSerializer(

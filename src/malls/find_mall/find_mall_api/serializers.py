@@ -4,15 +4,15 @@ from .models import Mall, Categories, Item
 class MallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mall
-        fields = ["title", "description", "status", "created_at", "updated_at"]
+        fields = ["title", "location"]
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
-        fields = ["title", "description", "status", "created_at", "updated_at"]
+        fields = ["title"]
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ["title", "description", "status","category", "created_at", "updated_at"]
+        fields = ["title", "category", "created_at", "updated_at"]
