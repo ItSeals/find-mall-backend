@@ -21,6 +21,7 @@ class Categories(models.Model):
 class Item(models.Model):
     title = models.CharField(max_length=255)
     category = models.ForeignKey(Categories, on_delete=models.DO_NOTHING)
+    malls = models.ManyToManyField(Mall)
     created_at = models.DateTimeField(
         auto_now_add=True, auto_now=False, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)

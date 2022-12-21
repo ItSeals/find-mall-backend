@@ -56,7 +56,7 @@ class MallDetailApiView(APIView):
         mall_instance = self.get_object(mall_id)
         if not mall_instance:
             return Response(
-                {"res": "Object with mall id does not exist"},
+                {"error": "Object with mall id does not exist"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -71,7 +71,7 @@ class MallDetailApiView(APIView):
         mall_instance = self.get_object(mall_id)
         if not mall_instance:
             return Response(
-                {"res": "Object with mall id does not exists"},
+                {"error": "Object with mall id does not exists"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         data = {
@@ -93,7 +93,7 @@ class MallDetailApiView(APIView):
         mall_instance = self.get_object(mall_id)
         if not mall_instance:
             return Response(
-                {"res": "Object with mall id does not exists"},
+                {"error": "Object with mall id does not exists"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         mall_instance.delete()
@@ -153,7 +153,7 @@ class CategoriesDetailApiView(APIView):
         categories_instance = self.get_object(category_id)
         if not categories_instance:
             return Response(
-                {"res": "Object with category id does not exist"},
+                {"error": "Object with category id does not exist"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -168,7 +168,7 @@ class CategoriesDetailApiView(APIView):
         category_instance = self.get_object(category_id)
         if not category_instance:
             return Response(
-                {"res": "Object with category id does not exists"},
+                {"error": "Object with category id does not exists"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         data = {
@@ -189,7 +189,7 @@ class CategoriesDetailApiView(APIView):
         category_instance = self.get_object(category_id)
         if not category_instance:
             return Response(
-                {"res": "Object with category id does not exists"},
+                {"error": "Object with category id does not exists"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         category_instance.delete()
@@ -208,6 +208,10 @@ class ItemsListApiView(APIView):
         List all the items
         '''
         items = Item.objects.all()
+        for item in items:
+            arr = []
+            item.malls.set(arr)
+            item.malls = arr
         serializer = ItemSerializer(items, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -219,11 +223,19 @@ class ItemsListApiView(APIView):
             request.data.get('category'))
         if not category_instance:
             return Response(
-                {'res': "The category doesn't exist"},
+                {'error': "The category doesn't exist"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        for mall in request.data.get('malls'):
+            mall_instance = MallDetailApiView.get_object(MallDetailApiView, mall)
+            if not mall_instance:
+                return Response(
+                    {'error': "The mall doesn't exist"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         data = {
             'title': request.data.get('title'),
+            'malls': request.data.get('malls'),
             'category': request.data.get('category')       
         }
         serializer = ItemSerializer(data=data)
@@ -255,7 +267,7 @@ class ItemsDetailApiView(APIView):
         item_instance = self.get_object(item_id)
         if not item_instance:
             return Response(
-                {"res": "Object with item id does not exist"},
+                {"error": "Object with item id does not exist"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -270,17 +282,26 @@ class ItemsDetailApiView(APIView):
         item_instance = self.get_object(item_id)
         if not item_instance:
             return Response(
-                {"res": "Object with item id does not exists"},
+                {"error": "Object with item id does not exists"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, request.data.get('category'))
         if not category_instance:
             return Response(
-                {'res': "The category doesn't exist"},
+                {'error': "The category doesn't exist"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        for mall in request.data.get('malls'):
+            mall_instance = MallDetailApiView.get_object(
+                MallDetailApiView, mall)
+            if not mall_instance:
+                return Response(
+                    {'error': "The mall doesn't exist"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         data = {
             'title': request.data.get('title'),
+            'malls': request.data.get('malls'),
             'category': request.data.get('category')
         }
         serializer = ItemSerializer(
@@ -298,7 +319,7 @@ class ItemsDetailApiView(APIView):
         item_instance = self.get_object(item_id)
         if not item_instance:
             return Response(
-                {"res": "Object with item id does not exists"},
+                {"error": "Object with item id does not exists"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         item_instance.delete()
