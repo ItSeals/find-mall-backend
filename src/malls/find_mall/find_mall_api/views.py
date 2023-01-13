@@ -4,6 +4,18 @@ from rest_framework import status, permissions
 from .models import Mall, Categories, Item
 from .serializers import MallSerializer, CategoriesSerializer, ItemSerializer
 
+def dict2obj(d):
+        if isinstance(d, list):
+            d = [dict2obj(x) for x in d]
+        if not isinstance(d, dict):
+            return d
+        class C(object):
+            pass
+        o = C()
+        for k in d:
+            o.__dict__[k] = dict2obj(d[k])
+        return o
+
 class MallListApiView(APIView):
 
     # 1. List all
@@ -208,12 +220,16 @@ class ItemsListApiView(APIView):
         List all the items
         '''
         items = Item.objects.all()
-        for item in items:
-            arr = []
-            item.malls.set(arr)
-            item.malls = arr
         serializer = ItemSerializer(items, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        arr = []
+        for inst in serializer.data:
+            dic = dict(inst)
+            newdict = {'category':
+                CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))}
+            dic.update(newdict)
+            arr.append(dic)
+        print(arr)
+        return Response(arr, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         '''
