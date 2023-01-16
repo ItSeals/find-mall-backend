@@ -5,7 +5,9 @@ from .views import (
     CategoriesListApiView,
     CategoriesDetailApiView,
     ItemsListApiView,
-    ItemsDetailApiView
+    ItemsDetailApiView,
+    ItemCategoryApiView,
+    ItemSearchApiView
 )
 
 urlpatterns = [
@@ -14,5 +16,7 @@ urlpatterns = [
     path('category/', CategoriesListApiView.as_view()),
     path('category/<int:category_id>/', CategoriesDetailApiView.as_view()),
     path('item/', ItemsListApiView.as_view()),
-    path('item/<int:item_id>/', ItemsDetailApiView.as_view())
+    path('item/<int:item_id>/', ItemsDetailApiView.as_view()),
+    path('items/<int:category_id>/', ItemCategoryApiView.as_view()),
+    path('items/search/<name>/', ItemSearchApiView.as_view())
 ]

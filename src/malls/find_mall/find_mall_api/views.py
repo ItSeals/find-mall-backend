@@ -4,17 +4,6 @@ from rest_framework import status, permissions
 from .models import Mall, Categories, Item
 from .serializers import MallSerializer, CategoriesSerializer, ItemSerializer
 
-def dict2obj(d):
-        if isinstance(d, list):
-            d = [dict2obj(x) for x in d]
-        if not isinstance(d, dict):
-            return d
-        class C(object):
-            pass
-        o = C()
-        for k in d:
-            o.__dict__[k] = dict2obj(d[k])
-        return o
 
 class MallListApiView(APIView):
 
@@ -220,12 +209,11 @@ class ItemsListApiView(APIView):
         List all the items
         '''
         items = Item.objects.all()
-        #print(items)
         serializer = ItemSerializer(items, many=True)
         arr = []
-        arr_mall=[]
         for inst in serializer.data:
             dic = dict(inst)
+            arr_mall=[]
             for mall in dic.get('malls'):
                 arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
             newdict = {'category':
@@ -233,7 +221,6 @@ class ItemsListApiView(APIView):
                 'malls':MallSerializer(arr_mall,many=True).data}
             dic.update(newdict)
             arr.append(dic)
-        #print(arr)
         return Response(arr, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
@@ -297,6 +284,7 @@ class ItemsDetailApiView(APIView):
         arr_mall=[]
         dic = dict(serializer.data)
         for mall in dic.get('malls'):
+                print("Go ", mall)
                 arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
         newdict = {'category':
                 CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
@@ -358,3 +346,39 @@ class ItemsDetailApiView(APIView):
             {"res": "Object deleted!"},
             status=status.HTTP_200_OK
         )
+
+class ItemCategoryApiView(APIView):
+    
+    def get(self, request, category_id, *args, **kwargs):
+        items = Item.objects.filter(category = category_id)
+        serializer=ItemSerializer(items, many=True)
+        arr = []
+        for inst in serializer.data:
+            dic = dict(inst)
+            arr_mall=[]
+            for mall in dic.get('malls'):
+                arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
+            newdict = {'category':
+                CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
+                'malls':MallSerializer(arr_mall,many=True).data}
+            dic.update(newdict)
+            arr.append(dic)
+        return Response(arr, status.HTTP_200_OK)
+
+class ItemSearchApiView(APIView):
+    
+    def get(self, request, name, *args, **kwargs):
+        items = Item.objects.filter(title = name)
+        serializer=ItemSerializer(items, many=True)
+        arr = []
+        for inst in serializer.data:
+            dic = dict(inst)
+            arr_mall=[]
+            for mall in dic.get('malls'):
+                arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
+            newdict = {'category':
+                CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
+                'malls':MallSerializer(arr_mall,many=True).data}
+            dic.update(newdict)
+            arr.append(dic)
+        return Response(arr, status.HTTP_200_OK)
