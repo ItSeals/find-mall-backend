@@ -1,18 +1,23 @@
 from rest_framework import serializers
-from .models import Mall, Categories, Item
+from .models import Mall, Categories, Item, Tag
 
 class MallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mall
-        fields = ["title", "location"]
+        fields = ["id", "title", "location"]
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
-        fields = ["title"]
+        fields = ["id", "title"]
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ["title", "category", "malls", "created_at", "updated_at"]
+        fields = ["title", "category", "malls", "tags", "created_at", "updated_at"]
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["id", "title"]
