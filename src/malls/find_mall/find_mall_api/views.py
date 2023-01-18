@@ -281,10 +281,14 @@ class ItemsDetailApiView(APIView):
             return None
 
     # 3. Retrieve
-    def get(self, request, item_id = None, category_id=None, item_name=None, tag_name=None, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         '''
         Retrieves the items with given Items_id
         '''
+        item_id=request.Get.get('item_id', '')
+        category_id=request.Get.get('category_id', '')
+        item_name=request.Get.get('item_name', '')
+        tag_name=request.Get.get('tag_name', '')
         print("Not all ", item_id, " ", category_id, " ", item_name, " ", tag_name)
         if item_id:
             item_instance = self.get_object(item_id)
