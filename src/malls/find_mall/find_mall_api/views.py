@@ -208,7 +208,6 @@ class ItemsListApiView(APIView):
         '''
         List all the items
         '''
-        print("All")
         items = Item.objects.all()
         serializer = ItemSerializer(items, many=True)
         arr = []
@@ -281,69 +280,27 @@ class ItemsDetailApiView(APIView):
             return None
 
     # 3. Retrieve
-    def get(self, request, *args, **kwargs):
+    def get(self, request, item_id, *args, **kwargs):
         '''
         Retrieves the items with given Items_id
         '''
-        item_id=request.Get.get('item_id', '')
-        category_id=request.Get.get('category_id', '')
-        item_name=request.Get.get('item_name', '')
-        tag_name=request.Get.get('tag_name', '')
-        print("Not all ", item_id, " ", category_id, " ", item_name, " ", tag_name)
-        if item_id:
-            item_instance = self.get_object(item_id)
-            if not item_instance:
-                return Response(
-                {"error": "Object with item id does not exist"},
-                status=status.HTTP_400_BAD_REQUEST
-                )
-
-            serializer = ItemSerializer(item_instance)
-            arr = []
-            arr_mall=[]
-            arr_tag=[]
-            dic = dict(serializer.data)
-            for mall in dic.get('malls'):
-                    arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
-            for tag in dic.get('tags'):
-                arr_tag.append(TagDetailApiView.get_object(TagDetailApiView, tag))
-            newdict = {'category':
+        item = self.get_object(item_id)
+        serializer = ItemSerializer(item)
+        arr = []
+        dic = dict(serializer.data)
+        arr_mall=[]
+        arr_tag=[]
+        for mall in dic.get('malls'):
+            arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
+        for tag in dic.get('tags'):
+            arr_tag.append(TagDetailApiView.get_object(TagDetailApiView, tag))
+        newdict = {'category':
                 CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
                 'malls': MallSerializer(arr_mall,many=True).data,
                 'tags': TagSerializer(arr_tag, many=True).data}
-            dic.update(newdict)
-            arr = dic
-        elif category_id or item_name or tag_name:
-            if category_id:
-                category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, category_id)
-                if not category_instance:
-                    return Response(
-                {"error": "Object with category id does not exist"},
-                status=status.HTTP_400_BAD_REQUEST
-                )
-                items = Item.objects.filter(category = category_id)
-            elif item_name:
-                items=Item.objects.filter(title__contains=item_name)
-            elif tag_name:
-                items=Item.tags.through.objects.filter(title__contains=item_name)
-            serializer=ItemSerializer(items, many=True)
-            arr = []
-            for inst in serializer.data:
-                dic = dict(inst)
-                arr_mall=[]
-                arr_tag=[]
-                for mall in dic.get('malls'):
-                    arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
-                for tag in dic.get('tags'):
-                    arr_tag.append(TagDetailApiView.get_object(TagDetailApiView, tag))
-                newdict = {'category':
-                    CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
-                    'malls':MallSerializer(arr_mall,many=True).data,
-                    'tags': TagSerializer(arr_tag, many=True).data}
-                dic.update(newdict)
-                arr.append(dic)
-
-        return Response(arr, status=status.HTTP_200_OK)
+        dic.update(newdict)
+        arr = dic
+        return Response(arr, status=status.HTTP_200_OK)           
     
     # 4. Update
     def put(self, request, item_id, *args, **kwargs):
@@ -407,41 +364,54 @@ class ItemsDetailApiView(APIView):
             status=status.HTTP_200_OK
         )
 
-class ItemCategoryApiView(APIView):
+class ItemParameterApiView(APIView):
     
-    def get(self, request, category_id, *args, **kwargs):
-        items = Item.objects.filter(category = category_id)
+    def get(self, request, *args, **kwargs):
+        category_id=request.GET.get('category_id')
+        item_name=request.GET.get('item_name')
+        tag_name=request.GET.get('tag_name')
+        print(category_id, " ", item_name, " ", tag_name)
+        if category_id:
+            category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, category_id)
+            if not category_instance:
+                return Response(
+                {"error": "Object with category id does not exist"},
+                status=status.HTTP_400_BAD_REQUEST
+                )
+            items = Item.objects.filter(category = category_id)
+        elif item_name:
+            items=Item.objects.filter(title__contains=item_name)
+        elif tag_name:
+            tags=Tag.objects.filter(title__contains=tag_name)
+            tag_ids=[]
+            for tag in tags:
+                tag_ids.append(tag.id)
+            item_tags=[]
+            for tag_id in tag_ids:
+                item_tags.append(Item.tags.through.objects.filter(tag_id=tag_id))
+            items=[]
+            for item_query in item_tags:
+                for item_tag in item_query:
+                    items.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_tag.item_id))
         serializer=ItemSerializer(items, many=True)
         arr = []
         for inst in serializer.data:
             dic = dict(inst)
             arr_mall=[]
+            arr_tag=[]
             for mall in dic.get('malls'):
                 arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
+            for tag in dic.get('tags'):
+                arr_tag.append(TagDetailApiView.get_object(TagDetailApiView, tag))
             newdict = {'category':
-                CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
-                'malls':MallSerializer(arr_mall,many=True).data}
+                    CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
+                    'malls':MallSerializer(arr_mall,many=True).data,
+                    'tags': TagSerializer(arr_tag, many=True).data}
             dic.update(newdict)
             arr.append(dic)
-        return Response(arr, status.HTTP_200_OK)
 
-class ItemSearchApiView(APIView):
-    
-    def get(self, request, name, *args, **kwargs):
-        items = Item.objects.filter(title = name)
-        serializer=ItemSerializer(items, many=True)
-        arr = []
-        for inst in serializer.data:
-            dic = dict(inst)
-            arr_mall=[]
-            for mall in dic.get('malls'):
-                arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
-            newdict = {'category':
-                CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
-                'malls': MallSerializer(arr_mall,many=True).data}
-            dic.update(newdict)
-            arr.append(dic)
-        return Response(arr, status.HTTP_200_OK)
+        return Response(arr, status=status.HTTP_200_OK)
+
 
 class TagListApiView(APIView):
 
