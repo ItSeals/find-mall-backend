@@ -20,7 +20,7 @@ urlpatterns = [
     re_path(r'^item(?:category_id=(?P<category_id>\w{1,3}))?$', ItemParameterApiView.as_view()),
     re_path(r'^item(?:item_name=(?P<item_name>\w{1,3}))?$', ItemParameterApiView.as_view()),
     re_path(r'^item(?:tag_name=(?P<tag_name>\w{1,3}))?$', ItemParameterApiView.as_view()),
-    re_path(r'^item$', ItemsListApiView.as_view()),
+    re_path(r'^items', ItemsListApiView.as_view()),
     path('tag', TagListApiView.as_view()),
     path('tag/<int:tag_id>', TagDetailApiView.as_view()),
 ]

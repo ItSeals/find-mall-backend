@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import Mall, Categories, Item, Tag
 from .serializers import MallSerializer, CategoriesSerializer, ItemSerializer, TagSerializer
+from django.shortcuts import redirect
 
 
 class MallListApiView(APIView):
@@ -370,7 +371,9 @@ class ItemParameterApiView(APIView):
         category_id=request.GET.get('category_id')
         item_name=request.GET.get('item_name')
         tag_name=request.GET.get('tag_name')
-        print(category_id, " ", item_name, " ", tag_name)
+        #print(category_id, " ", item_name, " ", tag_name)
+        # if not category_id and not item_name and not tag_name:
+        #     return redirect('localhost:80/api/v1/item')
         if category_id:
             category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, category_id)
             if not category_instance:
