@@ -209,6 +209,8 @@ class ItemsListApiView(APIView):
         '''
         List all the items
         '''
+        if request.GET.get('category_id') or request.GET.get('item_name') or request.GET.get('tag_name'):
+            return ItemParameterApiView.get(ItemParameterApiView, request)
         items = Item.objects.all()
         serializer = ItemSerializer(items, many=True)
         arr = []
