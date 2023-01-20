@@ -27,6 +27,7 @@ class Tag(models.Model):
         return self.title
         
 class Item(models.Model):
+    id = models.BigAutoField(auto_created=True, primary_key=True, verbose_name='ID')
     title = models.CharField(max_length=255)
     category = models.ForeignKey(Categories, on_delete=models.DO_NOTHING)
     malls = models.ManyToManyField(Mall)
