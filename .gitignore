@@ -1,3 +1,4 @@
 .idea
 src/malls/find_mall/find_mall/__pycache__
 src/malls/find_mall/find_mall_api/__pycache__
+src/malls/find_mall/find_mall_api/migrations/__pycache__
