@@ -7,6 +7,7 @@ class Mall(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True, verbose_name='ID')
     title = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
+    mall_image = models.ImageField(blank=True, null=True, default='src/image.jpg', upload_to=None)
 
     def __str__(self):
         return self.title

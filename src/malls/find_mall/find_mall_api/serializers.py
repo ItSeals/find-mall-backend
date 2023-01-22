@@ -4,7 +4,7 @@ from .models import Mall, Categories, Item, Tag
 class MallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mall
-        fields = ["id", "title", "location"]
+        fields = ["id", "title", "location", "mall_image"]
 
 
 class CategoriesSerializer(serializers.ModelSerializer):

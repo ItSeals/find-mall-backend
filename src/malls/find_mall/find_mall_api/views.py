@@ -209,7 +209,7 @@ class ItemsListApiView(APIView):
         '''
         List all the items
         '''
-        if request.GET.get('category_id') or request.GET.get('item_name') or request.GET.get('tag_name'):
+        if request.GET.get('category_id') or request.GET.get('search'):
             return ItemParameterApiView.get(ItemParameterApiView, request)
         items = Item.objects.all()
         serializer = ItemSerializer(items, many=True)
@@ -371,8 +371,7 @@ class ItemParameterApiView(APIView):
     
     def get(self, request, *args, **kwargs):
         category_id=request.GET.get('category_id')
-        item_name=request.GET.get('item_name')
-        tag_name=request.GET.get('tag_name')
+        item_search=request.GET.get('search')
         #print(category_id, " ", item_name, " ", tag_name)
         # if not category_id and not item_name and not tag_name:
         #     return redirect('localhost:80/api/v1/item')
@@ -384,20 +383,22 @@ class ItemParameterApiView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
                 )
             items = Item.objects.filter(category = category_id)
-        elif item_name:
-            items=Item.objects.filter(title__contains=item_name)
-        elif tag_name:
-            tags=Tag.objects.filter(title__contains=tag_name)
+        elif item_search:
+            items_by_title=Item.objects.filter(title__contains=item_search)
+            tags=Tag.objects.filter(title__contains=item_search)
             tag_ids=[]
             for tag in tags:
                 tag_ids.append(tag.id)
             item_tags=[]
             for tag_id in tag_ids:
                 item_tags.append(Item.tags.through.objects.filter(tag_id=tag_id))
-            items=[]
+            items_by_tag=[]
             for item_query in item_tags:
                 for item_tag in item_query:
-                    items.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_tag.item_id))
+                    items_by_tag.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_tag.item_id))
+            items_by_tag_id = [obj.id for obj in items_by_tag]
+            items_by_tag = Item.objects.filter(id__in = items_by_tag_id) 
+            items = items_by_title.union(items_by_tag)
         serializer=ItemSerializer(items, many=True)
         arr = []
         for inst in serializer.data:
