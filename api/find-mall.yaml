@@ -628,6 +628,12 @@ components:
             type: integer
             format: int32
             example: 3
+        tags:
+          type: array
+            items:
+              type: integer
+              format: int32
+              example: 1
         
     Category:
       required:
