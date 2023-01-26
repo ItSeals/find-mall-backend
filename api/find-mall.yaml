@@ -7,7 +7,7 @@ info:
     - [Back-end](https://github.com/ItSeals/find-mall-backend)
   version: 0.3.0
 servers:
-  - url: http://localhost:80/api/v1
+  - url: http://localhost:3000/api/v1
 tags:
   - name: admin
     description: Operations about admin
@@ -17,6 +17,7 @@ tags:
     description: Item CRUD operations
   - name: category
     description: Category CRUD operations
+  - name: tag
 paths:
   /admin/login:
     get:
@@ -73,7 +74,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Mall'
+                  
     post:
+      
       tags:
         - mall
       summary: Add a new mall to the system
@@ -84,7 +87,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Mall'
+              $ref: '#/components/schemas/MallInput'
         required: true
       responses:
         '200':
@@ -92,37 +95,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Mall'
+                $ref: '#/components/schemas/MallInput'
         '405':
           description: Invalid input
-      security:
-        - api_key: []
-    put:
-      tags:
-        - mall
-      summary: Update an existing mall
-      description: Update an existing mall by Id
-      operationId: updateMall
-      requestBody:
-        description: Update an existent mall in the system
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Mall'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Mall'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Mall not found
-        '405':
-          description: Validation exception
       security:
         - api_key: []
   /mall/{mallId}:
@@ -170,6 +145,42 @@ paths:
           description: Invalid mall value
       security:
         - api_key: []
+    put:
+      tags:
+        - mall
+      summary: Update an existing mall
+      description: Update an existing mall by Id
+      operationId: updateMall
+      parameters:
+        - name: mallId
+          in: path
+          description: ID of mall to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Update an existent mall in the system
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MallInput'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MallInput'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Mall not found
+        '405':
+          description: Validation exception
+      security:
+        - api_key: []
   /item:
     get:
       tags:
@@ -204,7 +215,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Item'
+              $ref: '#/components/schemas/ItemInput'
         required: true
       responses:
         '200':
@@ -212,40 +223,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/ItemInput'
         '405':
           description: Invalid input
       security:
         - api_key: []
 
-    put:
-      tags:
-        - item
-      summary: Update an existing item
-      description: Update an existing Item Id
-      operationId: updateItem
-      requestBody:
-        description: Update an existent item in the system
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Item'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Item'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Item not found
-        '405':
-          description: Validation exception
-      security:
-        - api_key: []
+    
   /item/{itemId}:
     get:
       tags:
@@ -272,6 +256,7 @@ paths:
           description: Invalid ID supplied
         '404':
           description: Item not found
+   
     delete:
       tags:
         - item
@@ -289,6 +274,42 @@ paths:
       responses:
         '400':
           description: Invalid item value
+      security:
+        - api_key: []
+    put:
+      tags:
+        - item
+      summary: Update an existing item
+      description: Update an existing Item Id
+      operationId: updateItem
+      parameters:
+        - name: itemId
+          in: path
+          description: ID of item to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Update an existent item in the system
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemInput'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemInput'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Item not found
+        '405':
+          description: Validation exception
       security:
         - api_key: []
   /category:
@@ -317,7 +338,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Category'
+              $ref: '#/components/schemas/CategoryInput'
         required: true
       responses:
         '200':
@@ -325,39 +346,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: '#/components/schemas/CategoryInput'
         '405':
           description: Invalid input
       security:
         - api_key: []
-    put:
-      tags:
-        - category
-      summary: Update an existing category
-      description: Update an existing category by Id
-      operationId: updateCategory
-      requestBody:
-        description: Update an existent category in the system
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Category'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Category not found
-        '405':
-          description: Validation exception
-      security:
-        - api_key: []
+    
   /category/{categoryId}:
     get:
       tags:
@@ -403,6 +397,141 @@ paths:
           description: Invalid Category value
       security:
         - api_key: []
+    put:
+      tags:
+        - category
+      summary: Update an existing category
+      description: Update an existing category by Id
+      operationId: updateCategory
+      parameters:
+        - name: categoryId
+          in: path
+          description: ID of category to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Update an existent category in the system
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryInput'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Category not found
+        '405':
+          description: Validation exception
+      security:
+        - api_key: []
+  /tags:
+    get:
+      tags:
+        - tag
+      summary: Get all tags
+      operationId: getTag
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+    post:
+      tags:
+        - tag
+      summary: Add a new tag to the system
+      description: Add a new tag to the system
+      operationId: addTag
+      requestBody:
+        description: Create a new tag in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/tag'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tag' 
+        '405':
+          description: Invalid input
+      security:
+        - api_key: []              
+    
+  /tag/{Tag_Id}:
+    delete:
+      tags:
+        - tag
+      summary: Deletes a tag
+      description: delete a tag
+      operationId: deleteTag
+      parameters:
+        - name: Tag_Id
+          in: path
+          description: Tag id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid tag value
+      security:
+        - api_key: []    
+    put:
+      tags:
+        - tag
+      summary: Update an existing tag
+      description: Update an existing tag by Id
+      operationId: updateTag
+      parameters:
+        - name: Tag_Id
+          in: path
+          description: ID of tag to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Update an existent tag in the system
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryInput'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Tag not found
+        '405':
+          description: Validation exception
+      security:
+        - api_key: []    
 components:
   schemas:
     Mall:
@@ -417,19 +546,26 @@ components:
         title:
           type: string
           example: Lviv Mall
-        description:
+        location:
           type: string
-          example: The best mall ever
-        # photoUrls:
-        #   type: array
-        #   items:
-        #     type: string
-        status:
-          type: integer
-          description: mall status in the system
-          enum:
-            - 1
-            - 0
+          example: Yaroslava Lutsika St.
+        photo:
+          type: string
+          description: "'photo' field of current Mall"
+    
+    MallInput:
+      required:
+        - title
+      type: object
+      properties:
+        title:
+          type: string
+          example: Lviv Mall
+        location:
+          type: string
+          example: Yaroslava Lutsika St.
+        
+          
     Item:
       required:
         - title
@@ -441,20 +577,58 @@ components:
           example: 20
         title:
           type: string
-          example: Lucik_shop
-        description:
+          example: BOHDAN_Shop
+        category:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+              example: 5
+            title:
+              type: string
+              example: Food
+        
+        malls:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 3
+              title:
+                type: string
+                example: "mall 1"
+              location:
+                type: string
+                example: "Yaroslava Lutsika St."
+        tag:
+          type: array
+          items:
+            type: object 
+            properties:
+              title:
+                type: string
+                example: 'Shoes'
+            
+    ItemInput:
+      type: object
+      properties:
+        title:
           type: string
-          example: The best item ever
-        # photoUrls:
-        #   type: array
-        #   items:
-        #     type: string
-        status:
+          example: BOHDAN_Shop
+        category:
           type: integer
-          description: item status in the system
-          enum:
-            - 1
-            - 0
+          format: int32
+          example: 1
+        malls:
+          type: array
+          items:
+            type: integer
+            format: int32
+            example: 3
+        
     Category:
       required:
         - title
@@ -463,19 +637,39 @@ components:
         id:
           type: integer
           format: int32
+          example: 2
+        title:
+          type: string
+          example: Food
+      
+    CategoryInput:
+      required:
+        - title
+      type: object
+      properties:
+        title:
+          type: string
+          example: Food
+    Tag:
+      required:
+        - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
           example: 67
         title:
           type: string
-          example: products
-        description:
+          example: Shoes
+    tag:
+      required:
+        - name
+      type: object
+      properties:
+        title:
           type: string
-          example: food and drinks
-        status:
-          type: integer
-          description: category status in the system
-          enum:
-            - 1
-            - 0
+          example: Shoes         
   requestBodies:
     Mall:
       description: Mall object that needs to be added to the system
@@ -483,6 +677,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Mall'
+      
     Item:
       description: Item object that needs to be added to the system
       content:

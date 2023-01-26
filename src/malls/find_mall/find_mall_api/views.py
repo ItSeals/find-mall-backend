@@ -257,6 +257,7 @@ class ItemsListApiView(APIView):
                 )
         data = {
             'title': request.data.get('title'),
+            'item_image': request.data.get('item_image'),
             'malls': request.data.get('malls'),
             'tags': request.data.get('tags'),
             'category': request.data.get('category')       
@@ -339,6 +340,7 @@ class ItemsDetailApiView(APIView):
                 )
         data = {
             'title': request.data.get('title'),
+            'item_image': request.data.get('item_image'),
             'malls': request.data.get('malls'),
             'tags': request.data.get('tags'),
             'category': request.data.get('category')       
@@ -372,9 +374,6 @@ class ItemParameterApiView(APIView):
     def get(self, request, *args, **kwargs):
         category_id=request.GET.get('category_id')
         item_search=request.GET.get('search')
-        #print(category_id, " ", item_name, " ", tag_name)
-        # if not category_id and not item_name and not tag_name:
-        #     return redirect('localhost:80/api/v1/item')
         if category_id:
             category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, category_id)
             if not category_instance:
