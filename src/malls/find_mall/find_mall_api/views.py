@@ -256,7 +256,7 @@ class ItemsListApiView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         data = {
-            'title': request.data.get('title'),
+            'title': request.data.get('title').upper(),
             'item_image': request.data.get('item_image'),
             'malls': request.data.get('malls'),
             'tags': request.data.get('tags'),
@@ -339,7 +339,7 @@ class ItemsDetailApiView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         data = {
-            'title': request.data.get('title'),
+            'title': request.data.get('title').upper(),
             'item_image': request.data.get('item_image'),
             'malls': request.data.get('malls'),
             'tags': request.data.get('tags'),
@@ -383,6 +383,7 @@ class ItemParameterApiView(APIView):
                 )
             items = Item.objects.filter(category = category_id)
         elif item_search:
+            item_search = item_search.upper()
             items_by_title=Item.objects.filter(title__contains=item_search)
             tags=Tag.objects.filter(title__contains=item_search)
             tag_ids=[]
@@ -437,7 +438,7 @@ class TagListApiView(APIView):
         Create the category with given tag data
         '''
         data = {
-            'title': request.data.get('title')
+            'title': request.data.get('title').upper()
         }
         serializer = TagSerializer(data=data)
         if serializer.is_valid():
@@ -488,7 +489,7 @@ class TagDetailApiView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         data = {
-            'title': request.data.get('title')
+            'title': request.data.get('title').upper()
         }
         serializer = TagSerializer(
             instance=tag_instance, data=data, partial=True)
