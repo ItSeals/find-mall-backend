@@ -30,7 +30,7 @@ class Item(models.Model):
     id = models.BigAutoField(auto_created=True, primary_key=True, verbose_name='ID')
     title = models.CharField(max_length=255)
     category = models.ForeignKey(Categories, on_delete=models.DO_NOTHING)
-    item_image = models.ImageField(blank=True, null=True, upload_to='C:/Projects/Web/find-mall-backend/src/image_download/')
+    item_image = models.ImageField(blank=True, null=True, upload_to='image_download/')
     malls = models.ManyToManyField(Mall)
     tags = models.ManyToManyField(Tag)
     created_at = models.DateTimeField(
