@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import Mall, Categories, Item, Tag
 from .serializers import MallSerializer, CategoriesSerializer, ItemSerializer, TagSerializer
-from django.shortcuts import redirect
 
 
 class MallListApiView(APIView):
@@ -243,13 +242,18 @@ class ItemsListApiView(APIView):
         #         {'error': "The category doesn't exist"},
         #         status=status.HTTP_400_BAD_REQUEST
         #     )
-        # for mall in request.data.get('malls'):
-        #     mall_instance = MallDetailApiView.get_object(MallDetailApiView, mall)
-        #     if not mall_instance:
-        #         return Response(
-        #             {'error': "The mall doesn't exist"},
-        #             status=status.HTTP_400_BAD_REQUEST
-        #         )
+        arr_malls = []
+        arr_tags = []
+        if isinstance(request.data.get('malls'), str):
+            mall_str = request.data.get('malls').replace('[','').replace(']','')
+            tag_str = request.data.get('tags').replace('[','').replace(']','')
+            for mall_id in mall_str.split(','):
+                arr_malls.append(int(mall_id))
+            for tag_id in tag_str.split(','):
+                arr_tags.append(int(tag_id))
+        else:
+            arr_malls = request.data.get('malls')
+            arr_tags = request.data.get('tags')
         # for tag in request.data.get('tags'):
         #     tag_instance = TagDetailApiView.get_object(TagDetailApiView, tag)
         #     if not tag_instance:
@@ -261,8 +265,8 @@ class ItemsListApiView(APIView):
         data = {
             'title': request.data.get('title').upper(),
             'item_image': request.data.get('item_image'),
-            'malls': request.data.get('malls'),
-            'tags': request.data.get('tags'),
+            'malls': arr_malls,
+            'tags': arr_tags,
             'category': request.data.get('category')       
         }
         print(data)
@@ -322,32 +326,44 @@ class ItemsDetailApiView(APIView):
                 {"error": "Object with item id does not exists"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, request.data.get('category'))
-        if not category_instance:
-            return Response(
-                {'error': "The category doesn't exist"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        for mall in request.data.get('malls'):
-            mall_instance = MallDetailApiView.get_object(
-                MallDetailApiView, mall)
-            if not mall_instance:
-                return Response(
-                    {'error': "The mall doesn't exist"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        for tag in request.data.get('tags'):
-            tag_instance = TagDetailApiView.get_object(TagDetailApiView, tag)
-            if not tag_instance:
-                return Response(
-                    {'error': "The tag doesn't exist"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        # category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, request.data.get('category'))
+        # if not category_instance:
+        #     return Response(
+        #         {'error': "The category doesn't exist"},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
+        # for mall in request.data.get('malls'):
+        #     mall_instance = MallDetailApiView.get_object(
+        #         MallDetailApiView, mall)
+        #     if not mall_instance:
+        #         return Response(
+        #             {'error': "The mall doesn't exist"},
+        #             status=status.HTTP_400_BAD_REQUEST
+        #         )
+        # for tag in request.data.get('tags'):
+        #     tag_instance = TagDetailApiView.get_object(TagDetailApiView, tag)
+        #     if not tag_instance:
+        #         return Response(
+        #             {'error': "The tag doesn't exist"},
+        #             status=status.HTTP_400_BAD_REQUEST
+        #         )
+        arr_malls = []
+        arr_tags = []
+        if isinstance(request.data.get('malls'), str):
+            mall_str = request.data.get('malls').replace('[','').replace(']','')
+            tag_str = request.data.get('tags').replace('[','').replace(']','')
+            for mall_id in mall_str.split(','):
+                arr_malls.append(int(mall_id))
+            for tag_id in tag_str.split(','):
+                arr_tags.append(int(tag_id))
+        else:
+            arr_malls = request.data.get('malls')
+            arr_tags = request.data.get('tags')
         data = {
             'title': request.data.get('title').upper(),
             'item_image': request.data.get('item_image'),
-            'malls': request.data.get('malls'),
-            'tags': request.data.get('tags'),
+            'malls': arr_malls,
+            'tags': arr_tags,
             'category': request.data.get('category')       
         }
         serializer = ItemSerializer(
