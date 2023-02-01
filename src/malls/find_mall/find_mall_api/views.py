@@ -236,27 +236,27 @@ class ItemsListApiView(APIView):
         '''
         print('Title: ', request.data.get('title'), '\nImage: ', request.data.get('item_image'), '\nMalls: ', request.data.get('malls'),
         '\nTags: ', request.data.get('tags'), '\nCategory: ', request.data.get('category'))
-        category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView,
-            request.data.get('category'))
-        if not category_instance:
-            return Response(
-                {'error': "The category doesn't exist"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        for mall in request.data.get('malls'):
-            mall_instance = MallDetailApiView.get_object(MallDetailApiView, mall)
-            if not mall_instance:
-                return Response(
-                    {'error': "The mall doesn't exist"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        for tag in request.data.get('tags'):
-            tag_instance = TagDetailApiView.get_object(TagDetailApiView, tag)
-            if not tag_instance:
-                return Response(
-                    {'error': "The tag doesn't exist"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        # category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView,
+        #     request.data.get('category'))
+        # if not category_instance:
+        #     return Response(
+        #         {'error': "The category doesn't exist"},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
+        # for mall in request.data.get('malls'):
+        #     mall_instance = MallDetailApiView.get_object(MallDetailApiView, mall)
+        #     if not mall_instance:
+        #         return Response(
+        #             {'error': "The mall doesn't exist"},
+        #             status=status.HTTP_400_BAD_REQUEST
+        #         )
+        # for tag in request.data.get('tags'):
+        #     tag_instance = TagDetailApiView.get_object(TagDetailApiView, tag)
+        #     if not tag_instance:
+        #         return Response(
+        #             {'error': "The tag doesn't exist"},
+        #             status=status.HTTP_400_BAD_REQUEST
+        #         )
         print("Norm")
         data = {
             'title': request.data.get('title').upper(),
