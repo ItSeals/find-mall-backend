@@ -257,6 +257,7 @@ class ItemsListApiView(APIView):
                     {'error': "The tag doesn't exist"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+        print("Norm")
         data = {
             'title': request.data.get('title').upper(),
             'item_image': request.data.get('item_image'),
@@ -264,7 +265,9 @@ class ItemsListApiView(APIView):
             'tags': request.data.get('tags'),
             'category': request.data.get('category')       
         }
+        print(data)
         serializer = ItemSerializer(data=data)
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
