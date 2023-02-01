@@ -234,6 +234,8 @@ class ItemsListApiView(APIView):
         '''
         Create the item with given item data
         '''
+        print('Title: ', request.data.get('title'), '\nImage: ', request.data.get('item_image'), '\nMalls: ', request.data.get('malls'),
+        '\nTags: ', request.data.get('tags'), '\nCategory: ', request.data.get('category'))
         category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView,
             request.data.get('category'))
         if not category_instance:
