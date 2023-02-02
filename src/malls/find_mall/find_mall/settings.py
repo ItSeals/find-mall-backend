@@ -126,7 +126,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = '/find_mall/'
+STATIC_URL = '/media/'
 MEDIA_ROOT = ''
 MEDIA_URL = ''
 
