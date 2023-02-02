@@ -79,6 +79,10 @@ class MallDetailApiView(APIView):
             'title': request.data.get('title'),
             'location': request.data.get('location')
         }
+        if not data.get('title'):
+            data.pop('title')
+        if not data.get('location'):
+            data.pop('location')
         serializer = MallSerializer(
             instance=mall_instance, data=data, partial=True)
         if serializer.is_valid():
@@ -175,6 +179,8 @@ class CategoriesDetailApiView(APIView):
         data = {
             'title': request.data.get('title')
         }
+        if not data.get('title'):
+            data.pop('title')
         serializer = CategoriesSerializer(
             instance=category_instance, data=data, partial=True)
         if serializer.is_valid():
@@ -233,8 +239,6 @@ class ItemsListApiView(APIView):
         '''
         Create the item with given item data
         '''
-        print('Title: ', request.data.get('title'), '\nImage: ', request.data.get('item_image'), '\nMalls: ', request.data.get('malls'),
-        '\nTags: ', request.data.get('tags'), '\nCategory: ', request.data.get('category'))
         # category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView,
         #     request.data.get('category'))
         # if not category_instance:
@@ -261,7 +265,7 @@ class ItemsListApiView(APIView):
         #             {'error': "The tag doesn't exist"},
         #             status=status.HTTP_400_BAD_REQUEST
         #         )
-        print("Norm")
+        
         data = {
             'title': request.data.get('title').upper(),
             'item_image': request.data.get('item_image'),
@@ -269,9 +273,7 @@ class ItemsListApiView(APIView):
             'tags': arr_tags,
             'category': request.data.get('category')       
         }
-        print(data)
         serializer = ItemSerializer(data=data)
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -366,6 +368,16 @@ class ItemsDetailApiView(APIView):
             'tags': arr_tags,
             'category': request.data.get('category')       
         }
+        if not data.get('title'):
+            data.pop('title')
+        if not data.get('item_image'):
+            data.pop('item_image')
+        if not data.get('malls'):
+            data.pop('malls')
+        if not data.get('tags'):
+            data.pop('tags')
+        if not data.get('category'):
+            data.pop('category')
         serializer = ItemSerializer(
             instance=item_instance, data=data, partial=True)
         if serializer.is_valid():
@@ -512,6 +524,8 @@ class TagDetailApiView(APIView):
         data = {
             'title': request.data.get('title').upper()
         }
+        if not data.get('title'):
+            data.pop('title')
         serializer = TagSerializer(
             instance=tag_instance, data=data, partial=True)
         if serializer.is_valid():
