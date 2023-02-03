@@ -127,7 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/find_mall/'
-MEDIA_ROOT = '/media/'
+MEDIA_ROOT = ''
 MEDIA_URL = ''
 
 # Default primary key field type
