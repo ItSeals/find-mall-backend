@@ -1,9 +1,30 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.contrib.auth.models import User
 from rest_framework import status, permissions
 from .models import Mall, Categories, Item, Tag
-from .serializers import MallSerializer, CategoriesSerializer, ItemSerializer, TagSerializer
+from .serializers import MallSerializer, CategoriesSerializer, ItemSerializer, TagSerializer, UserSerializer
 
+class UserApiView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        
+        data = {
+            "username": request.data.get('username'),
+            "email": request.data.get('email'),
+            "password": request.data.get('password')
+        }
+        serializer = UserSerializer(data = data)
+        if serializer.is_valid():
+            user = User.objects.create_user(data.get('username'), data.get('email'), data.get('password'))
+            user.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MallListApiView(APIView):
 

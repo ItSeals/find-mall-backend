@@ -1,5 +1,6 @@
 from django.urls import path, include, re_path
 from .views import (
+    UserApiView,
     MallListApiView,
     MallDetailApiView,
     CategoriesListApiView,
@@ -12,6 +13,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path('user', UserApiView.as_view()),
     path('mall', MallListApiView.as_view()),
     path('mall/<int:mall_id>', MallDetailApiView.as_view()),
     path('category', CategoriesListApiView.as_view()),
