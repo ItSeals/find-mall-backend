@@ -13,7 +13,8 @@ from .views import (
 )
 
 urlpatterns = [
-    path('user', UserApiView.as_view()),
+    #path('signin', UserApiView.as_view()),
+    #path('signup', UserApiView.as_view()),
     path('mall', MallListApiView.as_view()),
     path('mall/<int:mall_id>', MallDetailApiView.as_view()),
     path('category', CategoriesListApiView.as_view()),
@@ -22,6 +23,8 @@ urlpatterns = [
     re_path(r'^item$', ItemsListApiView.as_view()),
     re_path(r'^item(?:category_id=(?P<category_id>\d+))?', ItemParameterApiView.as_view()),
     re_path(r'^item(?:search=(?P<search>\D+))?', ItemParameterApiView.as_view()),
+    re_path(r'^item(?:search=(?P<search>\D+)&mall_ids=(?P<mall_ids>\D+)&category_ids=(?P<category_ids>\D+)&tag_ids=(?P<tag_ids>\D+))?'
+    , ItemParameterApiView.as_view()),
     #re_path(r'^item(?:tag_name=(?P<tag_name>\D+))?', ItemParameterApiView.as_view()),
     path('tag', TagListApiView.as_view()),
     path('tag/<int:tag_id>', TagDetailApiView.as_view()),

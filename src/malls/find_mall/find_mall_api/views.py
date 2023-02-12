@@ -26,6 +26,26 @@ class UserApiView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class UserLogin(APIView):
+
+    def get(self, request, *args, **kwargs):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        
+        data = {
+            "username": request.data.get('username'),
+            "password": request.data.get('password')
+        }
+        serializer = UserSerializer(data = data)
+        if serializer.is_valid():
+            user = User.objects.create_user(data.get('username'), data.get('email'), data.get('password'))
+            user.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class MallListApiView(APIView):
 
     # 1. List all
@@ -235,7 +255,7 @@ class ItemsListApiView(APIView):
         '''
         List all the items
         '''
-        if request.GET.get('category_id') or request.GET.get('search'):
+        if request.GET.get('category_ids') or request.GET.get('search') or request.GET.get('tag_ids') or request.GET.get('mall_ids'):
             return ItemParameterApiView.get(ItemParameterApiView, request)
         items = Item.objects.all()
         serializer = ItemSerializer(items, many=True)
@@ -426,17 +446,24 @@ class ItemsDetailApiView(APIView):
 class ItemParameterApiView(APIView):
     
     def get(self, request, *args, **kwargs):
-        category_id=request.GET.get('category_id')
+        category_id=request.query_params.get('category_ids').replace('[','').replace(']','').split(',')
         item_search=request.GET.get('search')
+        mall_ids = request.query_params.get('mall_ids').replace('[','').replace(']','').split(',')
+        tags_ids = request.query_params.get('tag_ids').replace('[','').replace(']','').split(',')
+        cat_items = Item.objects.none()
+        mall_items = Item.objects.none()
+        tag_items = Item.objects.none()
+        search_items = Item.objects.none()
         if category_id:
-            category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, category_id)
-            if not category_instance:
-                return Response(
-                {"error": "Object with category id does not exist"},
-                status=status.HTTP_400_BAD_REQUEST
-                )
-            items = Item.objects.filter(category = category_id)
-        elif item_search:
+            for cat_id in category_id:
+                category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, cat_id)
+                if not category_instance:
+                    return Response(
+                    {"error": "Object with category id does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST
+                    )
+                cat_items = cat_items.union(Item.objects.filter(category = cat_id))
+        if item_search:
             item_search = item_search.upper()
             items_by_title=Item.objects.filter(title__contains=item_search)
             tags=Tag.objects.filter(title__contains=item_search)
@@ -452,7 +479,57 @@ class ItemParameterApiView(APIView):
                     items_by_tag.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_tag.item_id))
             items_by_tag_id = [obj.id for obj in items_by_tag]
             items_by_tag = Item.objects.filter(id__in = items_by_tag_id) 
-            items = items_by_title.union(items_by_tag)
+            search_items = items_by_title.union(items_by_tag)
+        if mall_ids:
+            mall_items = Item.malls.through.objects.filter(mall_id__in = mall_ids)
+            items_by_mall=[]
+            for item_mall in mall_items:
+                    items_by_mall.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_mall.item_id))
+            items_by_mall_id = [obj.id for obj in items_by_mall]
+            mall_items = Item.objects.filter(id__in = items_by_mall_id) 
+
+        if tags_ids:
+            tag_items = Item.tags.through.objects.filter(tag_id__in = tags_ids)
+            items_by_tag=[]
+            for item_tag in tag_items:
+                    items_by_tag.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_tag.item_id))
+            items_by_tag_id = [obj.id for obj in items_by_tag]
+            print(items_by_tag_id)
+            tag_items = Item.objects.filter(id__in = items_by_tag_id) 
+
+        if search_items and not mall_items and not cat_items and not tag_items:
+            items = search_items
+        elif not search_items and not mall_items and not cat_items and not tag_items:
+            items = Item.objects.all()
+        elif search_items and mall_items and not cat_items and not tag_items:
+            items = search_items & mall_items
+        elif not search_items and mall_items and not cat_items and not tag_items:
+            items = mall_items
+        elif search_items and mall_items and cat_items and not tag_items:
+            items = search_items & mall_items & cat_items
+        elif not search_items and mall_items and cat_items and not tag_items:
+            items = mall_items & cat_items
+        elif search_items and mall_items and cat_items and tag_items:
+            items = search_items & mall_items & cat_items & tag_items
+        elif not search_items and mall_items and cat_items and tag_items:
+            items = mall_items & cat_items & tag_items
+        elif search_items and not mall_items and cat_items and tag_items:
+            items = search_items & cat_items & tag_items
+        elif not search_items and not mall_items and cat_items and tag_items:
+            items = cat_items & tag_items
+        elif search_items and not mall_items and cat_items and not tag_items:
+            items = search_items & cat_items
+        elif not search_items and not mall_items and cat_items and not tag_items:
+            items = cat_items
+        elif search_items and not mall_items and not cat_items and tag_items:
+            items = search_items & tag_items
+        elif not search_items and not mall_items and not cat_items and tag_items:
+            items = tag_items    
+        elif search_items and mall_items and not cat_items and tag_items:
+            items = search_items & mall_items & tag_items
+        elif not search_items and mall_items and not cat_items and tag_items:
+            items = mall_items & tag_items 
+
         serializer=ItemSerializer(items, many=True)
         arr = []
         for inst in serializer.data:
