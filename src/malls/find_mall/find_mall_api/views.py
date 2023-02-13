@@ -446,10 +446,19 @@ class ItemsDetailApiView(APIView):
 class ItemParameterApiView(APIView):
     
     def get(self, request, *args, **kwargs):
-        category_id=request.query_params.get('category_ids').replace('[','').replace(']','').split(',')
+        if request.query_params.get('category_ids'):
+            category_id=request.query_params.get('category_ids').replace('[','').replace(']','').split(',')
+        else:
+            category_id=None
         item_search=request.GET.get('search')
-        mall_ids = request.query_params.get('mall_ids').replace('[','').replace(']','').split(',')
-        tags_ids = request.query_params.get('tag_ids').replace('[','').replace(']','').split(',')
+        if request.query_params.get('mall_ids'):
+            mall_ids = request.query_params.get('mall_ids').replace('[','').replace(']','').split(',')
+        else:
+            mall_ids=None
+        if request.query_params.get('tag_ids'):
+            tags_ids = request.query_params.get('tag_ids').replace('[','').replace(']','').split(',')
+        else:
+            tags_ids=None
         cat_items = Item.objects.none()
         mall_items = Item.objects.none()
         tag_items = Item.objects.none()
@@ -497,37 +506,37 @@ class ItemParameterApiView(APIView):
             print(items_by_tag_id)
             tag_items = Item.objects.filter(id__in = items_by_tag_id) 
 
-        if search_items and not mall_items and not cat_items and not tag_items:
+        if item_search and not mall_ids and not category_id and not tags_ids:
             items = search_items
-        elif not search_items and not mall_items and not cat_items and not tag_items:
+        elif not item_search and not mall_ids and not category_id and not tags_ids:
             items = Item.objects.all()
-        elif search_items and mall_items and not cat_items and not tag_items:
+        elif item_search and mall_ids and not category_id and not tags_ids:
             items = search_items & mall_items
-        elif not search_items and mall_items and not cat_items and not tag_items:
+        elif not item_search and mall_ids and not category_id and not tags_ids:
             items = mall_items
-        elif search_items and mall_items and cat_items and not tag_items:
+        elif item_search and mall_ids and category_id and not tags_ids:
             items = search_items & mall_items & cat_items
-        elif not search_items and mall_items and cat_items and not tag_items:
+        elif not item_search and mall_ids and category_id and not tags_ids:
             items = mall_items & cat_items
-        elif search_items and mall_items and cat_items and tag_items:
+        elif item_search and mall_ids and category_id and tags_ids:
             items = search_items & mall_items & cat_items & tag_items
-        elif not search_items and mall_items and cat_items and tag_items:
+        elif not item_search and mall_ids and category_id and tags_ids:
             items = mall_items & cat_items & tag_items
-        elif search_items and not mall_items and cat_items and tag_items:
+        elif item_search and not mall_ids and category_id and tags_ids:
             items = search_items & cat_items & tag_items
-        elif not search_items and not mall_items and cat_items and tag_items:
+        elif not item_search and not mall_ids and category_id and tags_ids:
             items = cat_items & tag_items
-        elif search_items and not mall_items and cat_items and not tag_items:
+        elif item_search and not mall_ids and category_id and not tags_ids:
             items = search_items & cat_items
-        elif not search_items and not mall_items and cat_items and not tag_items:
+        elif not item_search and not mall_ids and category_id and not tags_ids:
             items = cat_items
-        elif search_items and not mall_items and not cat_items and tag_items:
+        elif item_search and not mall_ids and not category_id and tags_ids:
             items = search_items & tag_items
-        elif not search_items and not mall_items and not cat_items and tag_items:
+        elif not item_search and not mall_ids and not category_id and tags_ids:
             items = tag_items    
-        elif search_items and mall_items and not cat_items and tag_items:
+        elif item_search and mall_ids and not category_id and tags_ids:
             items = search_items & mall_items & tag_items
-        elif not search_items and mall_items and not cat_items and tag_items:
+        elif not item_search and mall_ids and not category_id and tags_ids:
             items = mall_items & tag_items 
 
         serializer=ItemSerializer(items, many=True)
