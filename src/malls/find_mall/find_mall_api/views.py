@@ -464,14 +464,7 @@ class ItemParameterApiView(APIView):
         tag_items = Item.objects.none()
         search_items = Item.objects.none()
         if category_id:
-            for cat_id in category_id:
-                category_instance = CategoriesDetailApiView.get_object(CategoriesDetailApiView, cat_id)
-                if not category_instance:
-                    return Response(
-                    {"error": "Object with category id does not exist"},
-                    status=status.HTTP_400_BAD_REQUEST
-                    )
-                cat_items = cat_items.union(Item.objects.filter(category = cat_id))
+            cat_items = Item.objects.filter(category_id__in = category_id)
         if item_search:
             item_search = item_search.upper()
             items_by_title=Item.objects.filter(title__contains=item_search)
