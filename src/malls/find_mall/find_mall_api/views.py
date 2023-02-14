@@ -481,7 +481,7 @@ class ItemParameterApiView(APIView):
                     items_by_tag.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_tag.item_id))
             items_by_tag_id = [obj.id for obj in items_by_tag]
             items_by_tag = Item.objects.filter(id__in = items_by_tag_id) 
-            search_items = items_by_title.union(items_by_tag)
+            search_items = items_by_title | items_by_tag
         if mall_ids:
             mall_items = Item.malls.through.objects.filter(mall_id__in = mall_ids)
             items_by_mall=[]
@@ -496,7 +496,6 @@ class ItemParameterApiView(APIView):
             for item_tag in tag_items:
                     items_by_tag.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_tag.item_id))
             items_by_tag_id = [obj.id for obj in items_by_tag]
-            print(items_by_tag_id)
             tag_items = Item.objects.filter(id__in = items_by_tag_id) 
 
         if item_search and not mall_ids and not category_id and not tags_ids:
