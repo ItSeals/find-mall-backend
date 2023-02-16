@@ -84,11 +84,11 @@ WSGI_APPLICATION = 'find_mall.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sample',
+        'NAME': 'findmalls',
         'HOST': '127.0.0.1',
         'PORT': '3306',
-        'USER': 'root',
-        'PASSWORD': 'root'
+        'USER': 'findmalls',
+        'PASSWORD': 'Lka40gO6ad1iSYN&BmS!'
         }
 }
 

@@ -39,3 +39,12 @@ class Item(models.Model):
 
     def __str__(self):
         return self.title
+
+class OtherTag(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    title = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.title

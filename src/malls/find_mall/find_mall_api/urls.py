@@ -1,6 +1,7 @@
 from django.urls import path, include, re_path
 from .views import (
-    UserApiView,
+    UserSignUp,
+    UserLogin,
     MallListApiView,
     MallDetailApiView,
     CategoriesListApiView,
@@ -9,12 +10,14 @@ from .views import (
     ItemsDetailApiView,
     ItemParameterApiView,
     TagListApiView,
-    TagDetailApiView
+    TagDetailApiView,
+    OtherTagListApiView,
+    OtherTagDetailApiView
 )
 
 urlpatterns = [
-    #path('signin', UserApiView.as_view()),
-    #path('signup', UserApiView.as_view()),
+    path('signin', UserLogin.as_view()),
+    path('signup', UserSignUp.as_view()),
     path('mall', MallListApiView.as_view()),
     path('mall/<int:mall_id>', MallDetailApiView.as_view()),
     path('category', CategoriesListApiView.as_view()),
@@ -28,4 +31,6 @@ urlpatterns = [
     #re_path(r'^item(?:tag_name=(?P<tag_name>\D+))?', ItemParameterApiView.as_view()),
     path('tag', TagListApiView.as_view()),
     path('tag/<int:tag_id>', TagDetailApiView.as_view()),
+    path('othertag', OtherTagListApiView.as_view()),
+    path('othertag/<int:OtherTag_id>', OtherTagDetailApiView.as_view())
 ]

@@ -1,16 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from rest_framework import status, permissions
-from .models import Mall, Categories, Item, Tag
-from .serializers import MallSerializer, CategoriesSerializer, ItemSerializer, TagSerializer, UserSerializer
+from .models import Mall, Categories, Item, Tag, OtherTag
+from .serializers import MallSerializer, CategoriesSerializer, ItemSerializer, TagSerializer, UserSerializer, OtherTagSerializer
+import re
 
-class UserApiView(APIView):
-
-    def get(self, request, *args, **kwargs):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class UserSignUp(APIView):
     
     def post(self, request, *args, **kwargs):
         
@@ -19,19 +16,36 @@ class UserApiView(APIView):
             "email": request.data.get('email'),
             "password": request.data.get('password')
         }
+        try:
+            User.objects.get(username = data.get("username"))
+            return Response(
+                {"Error": "Username is used."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except User.DoesNotExist:
+            None   
+        pat = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+        if not re.match(pat, data.get('email')):
+            return Response(
+                {"Error": "Invalid email."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            User.objects.get(email = data.get("email"))
+            return Response(
+                {"Error": "Email is used."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except User.DoesNotExist:
+            None
         serializer = UserSerializer(data = data)
         if serializer.is_valid():
             user = User.objects.create_user(data.get('username'), data.get('email'), data.get('password'))
             user.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserLogin(APIView):
-
-    def get(self, request, *args, **kwargs):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, *args, **kwargs):
         
@@ -39,12 +53,9 @@ class UserLogin(APIView):
             "username": request.data.get('username'),
             "password": request.data.get('password')
         }
-        serializer = UserSerializer(data = data)
-        if serializer.is_valid():
-            user = User.objects.create_user(data.get('username'), data.get('email'), data.get('password'))
-            user.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if authenticate(username = data.get('username'), password = data.get('password')):
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class MallListApiView(APIView):
 
@@ -469,6 +480,11 @@ class ItemParameterApiView(APIView):
             item_search = item_search.upper()
             items_by_title=Item.objects.filter(title__contains=item_search)
             tags=Tag.objects.filter(title__contains=item_search)
+            othertags = OtherTag.objects.filter(title__contains=item_search)
+            arr_id = []
+            for othertg in othertags:
+                arr_id.append(othertg.item.id)
+            items_by_othertags = Item.objects.filter(id__in=arr_id)
             tag_ids=[]
             for tag in tags:
                 tag_ids.append(tag.id)
@@ -481,7 +497,7 @@ class ItemParameterApiView(APIView):
                     items_by_tag.append(ItemsDetailApiView.get_object(ItemsDetailApiView, item_tag.item_id))
             items_by_tag_id = [obj.id for obj in items_by_tag]
             items_by_tag = Item.objects.filter(id__in = items_by_tag_id) 
-            search_items = items_by_title | items_by_tag
+            search_items = items_by_title | items_by_tag | items_by_othertags
         if mall_ids:
             mall_items = Item.malls.through.objects.filter(mall_id__in = mall_ids)
             items_by_mall=[]
@@ -644,6 +660,123 @@ class TagDetailApiView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         tag_instance.delete()
+        return Response(
+            {"res": "Object deleted!"},
+            status=status.HTTP_200_OK
+        )
+
+class OtherTagListApiView(APIView):
+    # add permission to check if user is authenticated
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    # 1. List all
+    def get(self, request, *args, **kwargs):
+        '''
+        List all the Tags items
+        '''
+        tags = OtherTag.objects.all()
+        serializer = OtherTagSerializer(tags, many=True)
+        arr = []
+        for tag in serializer.data:
+            tag = dict(tag)
+            newdict = {
+                'item': ItemSerializer(ItemsDetailApiView.get_object(ItemsDetailApiView, tag.get('item'))).data
+            }
+            tag.update(newdict)
+            arr.append(tag)
+        return Response(arr, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        '''
+        Create the category with given tag data
+        '''
+        data = {
+            'title': request.data.get('title').upper(),
+            'location': request.data.get('location'),
+            'item': request.data.get('item')
+        }
+        
+        serializer = OtherTagSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class OtherTagDetailApiView(APIView):
+    # add permission to check if user is authenticated
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_object(self, OtherTag_id):
+        '''
+        Helper method to get the object with given OtherTag_id
+        '''
+        try:
+            return OtherTag.objects.get(id = OtherTag_id)
+        except OtherTag.DoesNotExist:
+            return None
+
+    # 3. Retrieve
+    def get(self, request, OtherTag_id, *args, **kwargs):
+        '''
+        Retrieves the Mall with given OtherTag_id
+        '''
+        OtherTag_instance = self.get_object(OtherTag_id)
+        if not OtherTag_instance:
+            return Response(
+                {"error": "Object with mall id does not exist"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = OtherTagSerializer(OtherTag_instance)
+        tag = dict(serializer.data)
+        newdict = {
+                'item': ItemSerializer(ItemsDetailApiView.get_object(ItemsDetailApiView, tag.get('item'))).data
+            }
+        tag.update(newdict)
+        return Response(tag, status=status.HTTP_200_OK)
+
+    # 4. Update
+    def put(self, request, OtherTag_id, *args, **kwargs):
+        '''
+        Updates the mall item with given OtherTag_id if exists
+        '''
+        OtherTag_instance = self.get_object(OtherTag_id)
+        if not OtherTag_instance:
+            return Response(
+                {"error": "Object with OtherTag id does not exist"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        data = {
+            'title': request.data.get('title').upper(),
+            'location': request.data.get('location'),
+            'item': request.data.get('item')
+        }
+        if not data.get('title'):
+            data.pop('title')
+        if not data.get('location'):
+            data.pop('location')
+        if not data.get('item'):
+            data.pop('item')
+        serializer = OtherTagSerializer(
+            instance=OtherTag_instance, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # 5. Delete
+    def delete(self, request, OtherTag_id, *args, **kwargs):
+        '''
+        Deletes the mall item with given OtherTag_id if exists
+        '''
+        OtherTag_instance = self.get_object(OtherTag_id)
+        if not OtherTag_id:
+            return Response(
+                {"error": "Object with otherTag id does not exist"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        OtherTag_instance.delete()
         return Response(
             {"res": "Object deleted!"},
             status=status.HTTP_200_OK

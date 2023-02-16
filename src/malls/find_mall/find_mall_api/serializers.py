@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Mall, Categories, Item, Tag
+from .models import Mall, Categories, Item, Tag, OtherTag
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -28,3 +28,8 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ["id", "title"]
+
+class OtherTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OtherTag
+        fields = ["id", "title", "location", "item"]
