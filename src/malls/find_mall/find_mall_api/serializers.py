@@ -32,4 +32,4 @@ class TagSerializer(serializers.ModelSerializer):
 class OtherTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = OtherTag
-        fields = ["id", "title", "location", "item"]
+        fields = ["id", "title", "item"]

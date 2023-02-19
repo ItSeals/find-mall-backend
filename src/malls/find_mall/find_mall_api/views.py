@@ -275,6 +275,7 @@ class ItemsListApiView(APIView):
             dic = dict(inst)
             arr_mall=[]
             arr_tag=[]
+            arr_othertags = OtherTag.objects.filter(item_id = dic.get('id'))
             for mall in dic.get('malls'):
                 arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
             for tag in dic.get('tags'):
@@ -282,7 +283,8 @@ class ItemsListApiView(APIView):
             newdict = {'category':
                 CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
                 'malls': MallSerializer(arr_mall,many=True).data,
-                'tags': TagSerializer(arr_tag, many=True).data}
+                'tags': TagSerializer(arr_tag, many=True).data,
+                'othertags': OtherTagSerializer(arr_othertags, many=True).data}
             dic.update(newdict)
             arr.append(dic)
         return Response(arr, status=status.HTTP_200_OK)
@@ -353,10 +355,10 @@ class ItemsDetailApiView(APIView):
         '''
         item = self.get_object(item_id)
         serializer = ItemSerializer(item)
-        arr = []
         dic = dict(serializer.data)
         arr_mall=[]
         arr_tag=[]
+        arr_othertags = OtherTag.objects.filter(item_id = item_id)
         for mall in dic.get('malls'):
             arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
         for tag in dic.get('tags'):
@@ -364,10 +366,11 @@ class ItemsDetailApiView(APIView):
         newdict = {'category':
                 CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
                 'malls': MallSerializer(arr_mall,many=True).data,
-                'tags': TagSerializer(arr_tag, many=True).data}
+                'tags': TagSerializer(arr_tag, many=True).data,
+                'othertags': OtherTagSerializer(arr_othertags, many=True).data
+                }
         dic.update(newdict)
-        arr = dic
-        return Response(arr, status=status.HTTP_200_OK)           
+        return Response(dic, status=status.HTTP_200_OK)           
     
     # 4. Update
     def put(self, request, item_id, *args, **kwargs):
@@ -553,6 +556,7 @@ class ItemParameterApiView(APIView):
             dic = dict(inst)
             arr_mall=[]
             arr_tag=[]
+            arr_othertags = OtherTag.objects.filter(item_id = dic.get('id'))
             for mall in dic.get('malls'):
                 arr_mall.append(MallDetailApiView.get_object(MallDetailApiView, mall))
             for tag in dic.get('tags'):
@@ -560,7 +564,9 @@ class ItemParameterApiView(APIView):
             newdict = {'category':
                     CategoriesSerializer(CategoriesDetailApiView.get_object(CategoriesDetailApiView, dic.get('category'))).data,
                     'malls':MallSerializer(arr_mall,many=True).data,
-                    'tags': TagSerializer(arr_tag, many=True).data}
+                    'tags': TagSerializer(arr_tag, many=True).data,
+                    'othertags': OtherTagSerializer(arr_othertags, many=True).data
+                    }
             dic.update(newdict)
             arr.append(dic)
 
